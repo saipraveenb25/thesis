@@ -44,6 +44,51 @@
 % used in these domains therefore universally
 % include a notion of {\it inductive definition} as the primary form of
 
+\section{Overview}
+{\it Photometric stereo}, the de-facto term used for extracting shape from multiple directionally lit images, is almost as old as computer vision itself. At it's core, it is fundamentally the solution to a linear system that relies on the fact that exitant radiance from a lambertian surface patch is proportional to the dot product of incident light direction and the path normal. When it came out, this algorithm was extremely powerful. For most objects, it could estimate a per-pixel normal, leading to very accurate shape reconstructions.\\
+It does, however, make several assumptions:
+\begin{enumerate}
+    \item Distant lights (Directional lighting)
+    \item Convex shape (No multiple bounces/interreflections)
+    \item Lambertian BSDF ($\mathbf{n}.\mathbf{l}$ shading)
+\end{enumerate}
+
+These assumptions do not sit very well with real world objects. For instance, the lambertian BSDF assumption breaks down for even the most diffuse objects, because of a grazing-angle \textit{Fresnel} component. This is the same phenomenon where seemingly rough surfaces start to behave like mirrors when viewed at an angle close to parallel with the surface.
+
+The assumption of convexity also does not hold true for most objects, though its effects are harder to pin down accurately. Interreflections occur whenever two patches of an object face each other ($\mathbf{n_1}.\mathbf{n_2} > 0$. This means they are most pronounced near sharp inward edges. There also extremely concave surfaces like bowls and mugs that are rarely, if ever, used in photometric stereo papers because of extreme inter-reflections.
+
+The final assumption, directional lighting, is something that this thesis does not explicitly tackle, but will demonstrate that the framework can be trivially extended to handle any form of lighting. Most photometric stereo methods are limited by assumption that light hits every patch at the same angle. This simplifies the optimization problem significantly since the solution is independent of the relative distance between the light and the mesh. (TODO: Near-light photometric stereo)
+
+In practice, these assumptions can be ignored in a some cases, since grazing angle reflections don't account for much of the image, and based on the shape, interreflections may only contribute near sharp edges. In this thesis, we look at objects where we cannot ignore these assumptions. This includes either specular surfaces or highly concave objects, or both.
+
+\section{Background}
+The following section contains some background information that are relevant to the components of the framework presented in this thesis.
+\subsection{Monte Carlo path tracing}
+At the heart of any analysis-by-synthesis problem is the \textit{synthesis}. Since our framework aims to account for as many light transport phenomena as possible, it makes sense to use a fully-fledged phyically-based rendering method, like path tracing. \\
+Path tracing is an umbrella term for a family of Monte Carlo estimators that are used to sample paths of light through a scene. One could fill a book with the various sampling techniques, each of which better than the last. However, they all estimate the same fundamental recursive equation known as the \textit{rendering equation}, one of the keystones of computer graphics.
+(TODO: rendering equation)
+
+For the purpose of this thesis, we use the popular algorithm BDPT, which represents a sweet spot in the trade-off between complexity and sample efficiency. 
+At each iteration, the BDPT algorithm randomly sample two paths $\mathcal{L}$ and $\mathcal{C}$ from the light source and camera respectively of lengths $S$ and $T$ (which are determined by a Russian roulette factor). By connecting every point in $\mathcal{L}$ to every point in $\mathcal{C}$, BDPT creates a set of paths, along with the probability of path $s,t$ denoted by $p(\{\mathcal{L}_s,\mathcal{C}_t\})$.
+The final intensity is then estimated by the equation:
+(TODO: Place path integral here).
+
+Note that for our framework, we only require that the integral be written as an integral over a set of sampled paths and their probabilities. This means we do not necessarily require BDPT. Any similar algorithm, like MLT or PSSMLT would also work once they generate a set of paths.
+
+\subsection{Surface integration}
+Surface integration is an key part of our framework, but given the extensive literature on the topic of gradients-to-depth algorithms, there is no need to come up with our own. Since we work with fairly noisy normals (an unfortunate side effect of stochastic gradient descent algorithms), a weighted integration algorithm like Poisson surface reconstruction is a perfect fit for our framework.
+
+Weighted Poisson surface reconstruction can plainly expressed as the linear least squares solution to the following set of constraints.
+(TODO: Add constraints)
+
+\subsection{Adaptive Gradient Descent}
+Gradient descent is a fundamental part of the non-linear optimizaton problem that is responsible for inferring the normals as well as BSDF parameters.
+(TODO: Add SGD rules)
+
+The need for Adaptive gradient descent algorithms stems from the fact that some parameters of a model can have a more drastic effect on the error than others, while also operating on the same scale (and range of values). This discrepancy introduces a catch-22 situation where a learning rate that is too small will take forever to converge and a learning rate that is too large will cause some of the parameters to diverge quickly (or behave unpredictably). This necessitates adaptive gradients, which take the form of many popular algorithms like AdaGrad, AdaDelta, Adam and RMSProp. We choose Adam since it is also the algorithm of choice for many neural networks, and has provably good characteristics.
+
+(TODO: Add Adam rules)
+
 Suppose you find yourself in possession of
 \smallskip
 \begin{itemize}

@@ -47,30 +47,20 @@
 \pagestyle{empty}
 
 \title{ %% {\it \huge Thesis Proposal}\\
-{\bf Substructural Logical Specifications}
+{\bf Robust Shape Optimization\\ using Differentiable Rendering}
 %\\
-%{\it (Fourth committee draft)}
 }
-\author{Robert J. Simmons}
+\author{Sai Praveen Bangaru}
 \date{\today}
-\Year{2013}
-\trnumber{revision 1.0.1}
+\Year{2018}
+\trnumber{revision 1.0.0}
 
 \committee{
-Frank Pfenning, Chair \\
-Robert Harper \\
-Andr{\'e} Platzer \\
-Iliano Cervesato, Carnegie Mellon Qatar \\
-Dale Miller, INRIA-Saclay \& LIX/Ecole Polytechnique
+Ioannis Gkioulekas, Chair \\
+Srinivasa Narasimhan \\
 }
 
-\support{This research was sponsored by the National Science
-  Foundation Graduate Research Fellowship; National Science Foundation
-  under research grant number CNS-0716469; US Army Research Office
-  under grant number DAAD-190210389; Funda\c{c}\~ao para a Ci\^encia e
-  a Tecnologia (Portuguese Foundation for Science and Technology) via
-  the Carnegie Mellon Portugal Program under grant NGN-44; X10
-  Innovation Award from IBM; and Siebel Scholar Program.}  
+
 
 \disclaimer{Any opinions, findings, conclusions or recommendations
   expressed in this publication are those of the author and do not
@@ -96,144 +86,13 @@ Dale Miller, INRIA-Saclay \& LIX/Ecole Polytechnique
 %% into different files and input them into this file...
 
 \begin{abstract}
-  A logical framework and its implementation should serve as a
-  flexible tool for specifying, simulating, and reasoning about formal
-  systems. When the formal systems we are interested in exhibit state
-  and concurrency, however, existing logical frameworks fall short of
-  this goal. Logical frameworks based on a rewriting interpretation of
-  substructural logics, ordered and linear logic in particular, can
-  help. To this end, this dissertation introduces and demonstrates
-  four methodologies for developing and using substructural logical
-  frameworks for specifying and reasoning about stateful and
-  concurrent systems.
-
-  {\it Structural focalization} is a synthesis of ideas from
-  Andreoli's focused sequent calculi and Watkins's hereditary
-  substitution. We can use structural focalization to take a logic and
-  define a restricted form of derivations, the {\it focused
-    derivations}, that form the basis of a logical framework. We apply
-  this methodology to define \sls, a logical framework for
-  \underline{s}ubstructural \underline{l}ogical
-  \underline{s}pecifications, as a fragment of ordered linear lax
-  logic.
-
-  {\it Logical correspondence} is a methodology for relating and
-  inter-deriving different styles of programming language
-  specification in \sls. The styles we connect range from very
-  high-level specification styles like natural semantics, which do not
-  fully specify the control structure of programs, to low-level
-  specification styles like destination-passing, which provide
-  detailed control over concurrency and control flow. We apply this
-  methodology to systematically synthesize a low-level
-  destination-passing semantics for a Mini-ML language extended with
-  stateful and concurrent primitives. The specification is mostly
-  high-level except for the relatively few rules that actually deal
-  with concurrency.
-
-  {\it Linear logical approximation} is a methodology for deriving
-  program analyses by performing abstract analysis on the
-  \sls~encoding of the language's operational semantics. We
-  demonstrate this methodology by deriving a control flow analysis and
-  an alias analysis from suitable programming language specifications.
-
-  {\it Generative invariants} are a powerful generalization of
-  both context-free grammars and LF's regular worlds that allow us
-  to express invariants of \sls~specifications in \sls. We show that
-  generative invariants can form the basis of
-  progress-and-preservation-style reasoning about programming
-  languages encoded in \sls.
+  Most radiometric methods for the extraction of shape suffer from various approximations and assumptions about light transport, that ultimately make them unsuitable for certain classes of objects. Some of the most common assumptions include lambertian reflectance, absence of interreflections and distant light sources. Our goal is to construct a light-transport based framework that can be used to retrieve shape as well as reflectance properties without any of the above assumptions. The key component in this framework is a versatile differentiable path tracer which can not only compute the differentials of global BRDF parameters w.r.t image intensity, but also the differentials of each individual normal of the object w.r.t its image intensity. We further show how this can be used as a component in a non-linear optimization problem that minimizes the error between simulated and actual images. Finally, this thesis presents reconstruction results from both simulated as well as real-world datasets.
 \end{abstract}
 
 % XXX MAKE ACKNOLWEDGEMENTS
 \begin{acknowledgments}
-  I cannot begin to fully acknowledge the debt of gratitude I owe to
-  to my advisor, Frank Pfenning. Frank has provided me with
-  extraordinary guidance from the moment I arrived in Wean Hall and
-  started asking incredibly naive questions about these curious
-  logical propositions $A \lolli B$ and ${!}A$. Nearly all of the
-  ideas in this document were either developed or critically refined
-  during our many conversations over the past seven years. I also want
-  to thank my committee, Robert Harper, Andr{\'e} Platzer, Iliano
-  Cervesato, and Dale Miller. Iliano's extremely timely and detailed
-  feedback during the summer and fall of 2012 was especially important
-  to making this final document as intelligible as it is.
-
-  Many, many people have given me helpful feedback on this document
-  and the various papers that went into it, especially Sean
-  McLaughlin, Jason Reed, Rowan Davies, Chris Martens, Ian Zerny,
-  Beniamino Accattoli, Jonathan Aldrich, Roger Wolff, Lindsey Kuper,
-  and Ben Blum.  Beyond this group, the conversations I have had with
-  Noam Zeilberger, Dan Licata, Bernardo Toninho, William Lovas,
-  Carsten Sch{\"u}rmann, Henry DeYoung, Anders Schack-Nielsen, David
-  Baelde, Taus Brock-Nannestad, Karl Crary, Carlo Angiuli, and both
-  the Spring 2012 Linear Logic class and the CMU POP group as a whole
-  were incredibly important as I developed the ideas that are
-  presented here.  I'd also like to acknowledge the high-quality
-  feedback I've received through anonymous review during my time in
-  graduate school. Not everyone has a positive experience with peer
-  review, and I appreciate the degree to which most of the
-  reviews I've received, positive and negative, have been both 
-  constructive and fair.
-
-  And then there's the bigger picture.  So much of who I am is due to
-  my family -- my extended family of grandparents, aunts, uncles, and
-  cousins, but especially Mom, Dad, and Elizabeth. I would never have
-  gotten to graduate school in the first place, nor made it through,
-  without their unwavering love, support, and patience (so much
-  patience).
-
-  I have been fortunate to have the guidance of many exceptional
-  academic and professional mentors along the way. I want to
-  especially thank Jessica Hunt, Andrew Appel, David Walker, Sriram
-  Rajamani, and Aditya Nori, who have each contributed unique and
-  valuable pieces to my mathematical education.
-
-  I also must thank the caring, quirky, and diverse Pittsburgh
-  community that has helped me remember that there are things I care
-  about above and beyond writing funny Greek symbols in notebooks and
-  TeX files.  Rachel Gougian, of course, who stuck beside me for the
-  whole ride -- I couldn't have done this without you, and even if I
-  could have it wouldn't have been much fun. There was also Jen,
-  Jamie, Pete, Laurie, Carsten, Nawshin, Tom, Jim, Mary, Thomas,
-  Emily, Nick, Mike, and all my fellow Dec/5 troublemakers, espresso
-  elves, talented Yinzerstars, SIGBOVIK organizers, and Words with
-  Friends buddies.  
-
-  It's been a privilege and a blessing. Thanks, everybody.
-
-% COMMITTEE: Frank Robert Andr\`e Iliano Dale
-% MENTORS (who aren't also committee):
-%   - Jessica Hunt
-%   - Andrew Appel, Dave Walker
-%   - Sriram Rajamani, Aditya Nori
-% DISCUSSERS (who aren't also readers):
-%   - Noam Zeilberger
-%   - Dan Licata
-%   - The Linear Logic class
-%   - Bernardo Toninho
-%   - Henry De Young
-%   - POP group, generically
-% READERS: 
-%   - Sean McLaughlin
-%   - Jason Reed
-%   - Rowan Davies
-%   - Chris Martens 
-%   - Ian Zerny
-%   - Beniamino Accattoli
-%   - Lindsey Kuper
-%   - Ben Blum
-%   - Jonathan Aldrich, Roger Wolff, and the three anonymous HOSC reviewers
-%   - Three anonymous reviewers of the ICFP submission
-%   - Five anonymous reviewers of the LICS submission
-%   - Thank paper reviewers in general
-% PEOPLE:
-%   - Rachel, Jen, Jamie, Lauren, Pete, Laurie, Carsten, Nawshin, Mary
-%   - Thomas, Emily, Nick, and the Yinzerstars
-% FAMILY: Mom, Dad, Elizabeth
-% WORDS WITH FRIENDS: Cyrus, Mom, Jonas, Chris, Ed
+ 
 \end{acknowledgments}
-
-
 
 \tableofcontents
 \listoffigures % XXX Do I want this?
@@ -299,10 +158,6 @@ Dale Miller, INRIA-Saclay \& LIX/Ecole Polytechnique
 \input{chapter-conclusion}
 
 \appendix
-
-\input{appendix-procsum}
-
-\input{appendix-hybrid}
 
 % \chapter{Programming with canonical forms}
 
